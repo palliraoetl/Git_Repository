@@ -499,21 +499,11 @@ public class testjob implements TalendJob {
 						public void limitLog4jByte() throws Exception {
 							StringBuilder log4jParamters_tLogRow_1 = new StringBuilder();
 							log4jParamters_tLogRow_1.append("Parameters:");
-							log4jParamters_tLogRow_1.append("BASIC_MODE" + " = " + "true");
+							log4jParamters_tLogRow_1.append("BASIC_MODE" + " = " + "false");
 							log4jParamters_tLogRow_1.append(" | ");
-							log4jParamters_tLogRow_1.append("TABLE_PRINT" + " = " + "false");
+							log4jParamters_tLogRow_1.append("TABLE_PRINT" + " = " + "true");
 							log4jParamters_tLogRow_1.append(" | ");
 							log4jParamters_tLogRow_1.append("VERTICAL" + " = " + "false");
-							log4jParamters_tLogRow_1.append(" | ");
-							log4jParamters_tLogRow_1.append("FIELDSEPARATOR" + " = " + "\"|\"");
-							log4jParamters_tLogRow_1.append(" | ");
-							log4jParamters_tLogRow_1.append("PRINT_HEADER" + " = " + "false");
-							log4jParamters_tLogRow_1.append(" | ");
-							log4jParamters_tLogRow_1.append("PRINT_UNIQUE_NAME" + " = " + "false");
-							log4jParamters_tLogRow_1.append(" | ");
-							log4jParamters_tLogRow_1.append("PRINT_COLNAMES" + " = " + "false");
-							log4jParamters_tLogRow_1.append(" | ");
-							log4jParamters_tLogRow_1.append("USE_FIXED_LENGTH" + " = " + "false");
 							log4jParamters_tLogRow_1.append(" | ");
 							log4jParamters_tLogRow_1.append("PRINT_CONTENT_WITH_LOG4J" + " = " + "true");
 							log4jParamters_tLogRow_1.append(" | ");
@@ -530,9 +520,108 @@ public class testjob implements TalendJob {
 
 				///////////////////////
 
-				final String OUTPUT_FIELD_SEPARATOR_tLogRow_1 = "|";
-				java.io.PrintStream consoleOut_tLogRow_1 = null;
+				class Util_tLogRow_1 {
 
+					String[] des_top = { ".", ".", "-", "+" };
+
+					String[] des_head = { "|=", "=|", "-", "+" };
+
+					String[] des_bottom = { "'", "'", "-", "+" };
+
+					String name = "";
+
+					java.util.List<String[]> list = new java.util.ArrayList<String[]>();
+
+					int[] colLengths = new int[1];
+
+					public void addRow(String[] row) {
+
+						for (int i = 0; i < 1; i++) {
+							if (row[i] != null) {
+								colLengths[i] = Math.max(colLengths[i], row[i].length());
+							}
+						}
+						list.add(row);
+					}
+
+					public void setTableName(String name) {
+
+						this.name = name;
+					}
+
+					public StringBuilder format() {
+
+						StringBuilder sb = new StringBuilder();
+
+						sb.append(print(des_top));
+
+						int totals = 0;
+						for (int i = 0; i < colLengths.length; i++) {
+							totals = totals + colLengths[i];
+						}
+
+						// name
+						sb.append("|");
+						int k = 0;
+						for (k = 0; k < (totals + 0 - name.length()) / 2; k++) {
+							sb.append(' ');
+						}
+						sb.append(name);
+						for (int i = 0; i < totals + 0 - name.length() - k; i++) {
+							sb.append(' ');
+						}
+						sb.append("|\n");
+
+						// head and rows
+						sb.append(print(des_head));
+						for (int i = 0; i < list.size(); i++) {
+
+							String[] row = list.get(i);
+
+							java.util.Formatter formatter = new java.util.Formatter(new StringBuilder());
+
+							StringBuilder sbformat = new StringBuilder();
+							sbformat.append("|%1$-");
+							sbformat.append(colLengths[0]);
+							sbformat.append("s");
+
+							sbformat.append("|\n");
+
+							formatter.format(sbformat.toString(), (Object[]) row);
+
+							sb.append(formatter.toString());
+							if (i == 0)
+								sb.append(print(des_head)); // print the head
+						}
+
+						// end
+						sb.append(print(des_bottom));
+						return sb;
+					}
+
+					private StringBuilder print(String[] fillChars) {
+						StringBuilder sb = new StringBuilder();
+						// first column
+						sb.append(fillChars[0]);
+
+						// last column
+						for (int i = 0; i < colLengths[0] - fillChars[0].length() - fillChars[1].length() + 2; i++) {
+							sb.append(fillChars[2]);
+						}
+						sb.append(fillChars[1]);
+						sb.append("\n");
+						return sb;
+					}
+
+					public boolean isTableEmpty() {
+						if (list.size() > 1)
+							return false;
+						return true;
+					}
+				}
+				Util_tLogRow_1 util_tLogRow_1 = new Util_tLogRow_1();
+				util_tLogRow_1.setTableName("tLogRow_1");
+				util_tLogRow_1.addRow(new String[] { "names", });
 				StringBuilder strBuffer_tLogRow_1 = null;
 				int nb_line_tLogRow_1 = 0;
 ///////////////////////    			
@@ -636,25 +725,17 @@ public class testjob implements TalendJob {
 
 ///////////////////////		
 
-					strBuffer_tLogRow_1 = new StringBuilder();
+					String[] row_tLogRow_1 = new String[1];
 
 					if (row1.names != null) { //
-
-						strBuffer_tLogRow_1.append(String.valueOf(row1.names));
+						row_tLogRow_1[0] = String.valueOf(row1.names);
 
 					} //
 
-					if (globalMap.get("tLogRow_CONSOLE") != null) {
-						consoleOut_tLogRow_1 = (java.io.PrintStream) globalMap.get("tLogRow_CONSOLE");
-					} else {
-						consoleOut_tLogRow_1 = new java.io.PrintStream(new java.io.BufferedOutputStream(System.out));
-						globalMap.put("tLogRow_CONSOLE", consoleOut_tLogRow_1);
-					}
-					log.info("tLogRow_1 - Content of row " + (nb_line_tLogRow_1 + 1) + ": "
-							+ strBuffer_tLogRow_1.toString());
-					consoleOut_tLogRow_1.println(strBuffer_tLogRow_1.toString());
-					consoleOut_tLogRow_1.flush();
+					util_tLogRow_1.addRow(row_tLogRow_1);
 					nb_line_tLogRow_1++;
+					log.info("tLogRow_1 - Content of row " + nb_line_tLogRow_1 + ": "
+							+ TalendString.unionString("|", row_tLogRow_1));
 //////
 
 //////                    
@@ -724,6 +805,17 @@ public class testjob implements TalendJob {
 				currentComponent = "tLogRow_1";
 
 //////
+
+				java.io.PrintStream consoleOut_tLogRow_1 = null;
+				if (globalMap.get("tLogRow_CONSOLE") != null) {
+					consoleOut_tLogRow_1 = (java.io.PrintStream) globalMap.get("tLogRow_CONSOLE");
+				} else {
+					consoleOut_tLogRow_1 = new java.io.PrintStream(new java.io.BufferedOutputStream(System.out));
+					globalMap.put("tLogRow_CONSOLE", consoleOut_tLogRow_1);
+				}
+
+				consoleOut_tLogRow_1.println(util_tLogRow_1.format().toString());
+				consoleOut_tLogRow_1.flush();
 //////
 				globalMap.put("tLogRow_1_NB_LINE", nb_line_tLogRow_1);
 				if (log.isInfoEnabled())
@@ -1416,6 +1508,6 @@ public class testjob implements TalendJob {
 	ResumeUtil resumeUtil = null;
 }
 /************************************************************************************************
- * 47903 characters generated by Talend Cloud Data Management Platform on the 16
- * July, 2021 5:39:02 PM IST
+ * 50792 characters generated by Talend Cloud Data Management Platform on the 16
+ * July, 2021 5:39:28 PM IST
  ************************************************************************************************/
